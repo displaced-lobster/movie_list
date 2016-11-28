@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #-----------------------------------------------------------------------------------
 # movies.py
-# v1.0
+# v1.1
 # by Richard Mills
 # Scrapes website for movies playing in Edmonton, fetches IMDB rating and compiles list of high rated movies. Emails list
 #-----------------------------------------------------------------------------------
@@ -13,6 +13,7 @@ import requests
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import shelve
 
 def isFloat(num):
     try:
@@ -35,9 +36,11 @@ def imdbData(movie, year):
                 return [movie, rating, link, data['Plot']]
     return -1
 
-def email(toAddresses, subject, text, html):
-    username = ####### EMAIL TO USE #######
-    password = ####### PASSWORD ########
+def email(subject, text, html):
+    d = shelve.open('email_helper')
+    username = d['from_address']
+    password = d['password']
+    toAddresses = d['to_addresses']
 
     msg = MIMEMultipart('alternative')
     msg['Subject'] = subject
@@ -76,8 +79,6 @@ for movie in movie_list:
     movieData = imdbData(movie[0], movie[1])
     if movieData != -1:
         goodMovies.append(movieData)
-
-toAddresses = [##### List Here #####]
 
 movieText = ''
 movieHTML = ''

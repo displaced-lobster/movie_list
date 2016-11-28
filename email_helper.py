@@ -9,8 +9,9 @@ import shelve
 import re
 
 email_pat = re.compile('^([a-z0-9+_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,24})$')
+filename = 'email_helper'
 
-def store_login(filename):
+def store_login():
     d = shelve.open(filename)
     d['from_address'] = input("From email address: ").lower()
     if re.fullmatch(email_pat, d['from_address']) == None:
@@ -21,7 +22,7 @@ def store_login(filename):
     d.close()
     return
 
-def modify_to_addresses(filename, addresses, action):
+def modify_to_addresses(addresses, action):
     d = shelve.open(filename)
 
     if action == 'add':
@@ -49,7 +50,7 @@ def modify_to_addresses(filename, addresses, action):
         for address in addresses:
             temp.remove(address)
         d['to_addresses'] = temp
-        
+
     else:
         print('Usage: modify_to_addresses(filename, addresses, action)')
         print('addresses is a list of strings')
