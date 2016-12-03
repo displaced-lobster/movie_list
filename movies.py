@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #-----------------------------------------------------------------------------------
 # movies.py
-# v1.1
+# v2.0
 # by Richard Mills
 # Scrapes website for movies playing in Edmonton, fetches IMDB rating and compiles list of high rated movies. Emails list
 #-----------------------------------------------------------------------------------
@@ -20,7 +20,8 @@ def isFloat(num):
     except:
         return False
 
-def imdbData(movie, year):
+def imdb_data(movie, year):
+    # Retrieve IMDB movie data using OMDB API, only returns movies with rating higher or equal to 7.0
     url = 'http://www.omdbapi.com/?t='
     end_url = '&y=' + year + '&plot=short&r=json'
     url_search = url + movie.replace(" ", "+") + end_url
@@ -31,10 +32,18 @@ def imdbData(movie, year):
         if isFloat(rating):
             if float(rating) >= 7.0:
                 link = "www.imdb.com/title/" + data['imdbID']
-                return [movie, rating, link, data['Plot']]
+                return [movie, rating, link, data['Plot']] #Movie Title, Rating, IMDB Link, and Plot
     return -1
 
-def main ():
+def get_emails():
+    # Retieve email list from file, first email is sender email, remainder are recipient emails
+    with open('emails.txt') as f:
+        emails = f.read().splitlines()
+    sender = emails.pop(0)
+    return sender, emails
+
+def get_movies():
+    # Scrape website for movies playing in Edmonton using BeautifulSoup
     source = urllib.request.urlopen('http://www.edmovieguide.com/movies/?sort=release-date')
     soup = bs.BeautifulSoup(source, 'lxml')
     movie_list = []
@@ -49,18 +58,24 @@ def main ():
             movie_list.append([movie_name, movie_date])
         except:
             pass
+    return movie_list
 
+def get_good_movies(movies):
+    # Trim movie list using imdb_data()
     good_movies = []
 
-    for movie in movie_list:
-        movie_data = imdbData(movie[0], movie[1])
+    for movie in movies:
+        movie_data = imdb_data(movie[0], movie[1])
         if movie_data != -1:
             good_movies.append(movie_data)
+    return good_movies
 
+def format_text(movies):
+    # Formats text for email, plain text and html, returns both
     movie_text = ''
     movie_HTML = ''
 
-    for movie in good_movies:
+    for movie in movies:
         movie_text += movie[0] + '     ' + movie[1] + '\n'
         movie_text += movie[3] + '\n'
         movie_HTML += '<tr><td><a href="%s">%s</a></td>' %(movie[2], movie[0])
@@ -83,9 +98,11 @@ def main ():
     </html>
     """ %movie_HTML
 
-    with open('emails.txt') as f:
-        emails = f.read().splitlines()
+    return text, html
 
-    sender = emails.pop(0)
-
-    gmail_helper.email(sender, emails, 'Movie List', text, html)
+def main ():
+    movies = get_movies()
+    good_movies = get_good_movies(movies)
+    sender, to = get_emails()
+    text, html = format_text(good_movies)
+    gmail_helper.email(sender, to, 'Movie List', text, html)
