@@ -17,6 +17,10 @@ try:
 except ImportError:
     flags = None
 
+SCOPES = 'https://www.googleapis.com/auth/gmail.send'
+CLIENT_SECRET_FILE = '../client_secret.json'
+APPLICATION_NAME = 'Gmail API Quickstart'
+
 def create_message(sender, to, subject, message_text, message_html):
     message = MIMEMultipart('alternative')
     message['to'] = ', '.join(to)
@@ -35,10 +39,6 @@ def send_message(service, user_id, message):
         return message
     except error.HTTPError:
         print('An error occurred: ', error.HTTPError)
-
-SCOPES = 'https://www.googleapis.com/auth/gmail.send'
-CLIENT_SECRET_FILE = 'client_secret.json'
-APPLICATION_NAME = 'Gmail API Quickstart'
 
 def get_credentials():
     home_dir = os.path.expanduser('~')
@@ -68,11 +68,3 @@ def email(sender, to, subject, text, html):
     service = create_service()
     message = create_message(sender, to, subject, text, html)
     send_message(service, 'me', message)
-
-def test():
-    sender = 'scripts.richard@gmail.com'
-    to = ['rchrdmlls@gmail.com', 'daynacorbett@gmail.com']
-    text = 'Did this work?'
-    html = 'Or did this work?'
-
-    email(sender, to, 'Test', text, html)
