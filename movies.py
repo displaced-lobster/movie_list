@@ -33,7 +33,7 @@ def imdb_data(movie, year):
             if float(rating) >= 7.0:
                 link = "www.imdb.com/title/" + data['imdbID']
                 return [movie, rating, link, data['Plot']] #Movie Title, Rating, IMDB Link, and Plot
-    return -1
+    return False
 
 def get_emails():
     # Retieve email list from file, first email is sender email, remainder are recipient emails
@@ -66,7 +66,7 @@ def get_good_movies(movies):
 
     for movie in movies:
         movie_data = imdb_data(movie[0], movie[1])
-        if movie_data != -1:
+        if movie_data:
             good_movies.append(movie_data)
     return good_movies
 
@@ -106,3 +106,5 @@ def main ():
     sender, to = get_emails()
     text, html = format_text(good_movies)
     gmail_helper.email(sender, to, 'Movie List', text, html)
+
+main()
