@@ -39,6 +39,9 @@ def get_emails():
     # Retieve email list from file, first email is sender email, remainder are recipient emails
     with open('emails.txt') as f:
         emails = f.read().splitlines()
+    for line in emails:
+        if line[0] == '#':
+            emails.remove(line)
     sender = emails.pop(0)
     return sender, emails
 
