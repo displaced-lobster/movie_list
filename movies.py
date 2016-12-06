@@ -13,6 +13,8 @@ import requests
 
 import gmail_helper
 
+emails_file = 'emails.txt'
+
 def isFloat(num):
     try:
         float(num)
@@ -34,16 +36,6 @@ def imdb_data(movie, year):
                 link = "www.imdb.com/title/" + data['imdbID']
                 return [movie, rating, link, data['Plot']] #Movie Title, Rating, IMDB Link, and Plot
     return False
-
-def get_emails():
-    # Retieve email list from file, first email is sender email, remainder are recipient emails
-    with open('emails.txt') as f:
-        emails = f.read().splitlines()
-    for line in emails:
-        if line[0] == '#':
-            emails.remove(line)
-    sender = emails.pop(0)
-    return sender, emails
 
 def get_movies():
     # Scrape website for movies playing in Edmonton using BeautifulSoup
@@ -106,8 +98,8 @@ def format_text(movies):
 def main ():
     movies = get_movies()
     good_movies = get_good_movies(movies)
-    sender, to = get_emails()
     text, html = format_text(good_movies)
+    sender, to = gmail_helper.get_emails(emails_file)
     gmail_helper.email(sender, to, 'Movie List', text, html)
 
 main()
