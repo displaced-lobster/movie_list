@@ -1,16 +1,15 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 # -------------------------------------------------------------------------------
 # movies.py
-# v2.0
 # by Richard Mills
 # Scrapes website for movies playing in Edmonton, fetches IMDB rating
 # and compiles list of high rated movies. Emails list
 # -------------------------------------------------------------------------------
 
 import bs4 as bs
-import urllib.request
 import json
 import requests
+import urllib.request
 
 import gmail_helper
 
