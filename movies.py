@@ -7,13 +7,17 @@
 # -------------------------------------------------------------------------------
 
 import bs4 as bs
-import json
+# import json
 import requests
 import urllib.request
+import logging
 
 import gmail_helper
 
 emails_file = 'emails.txt'
+
+logging.basicConfig(level=logging.DEBUG,
+                    format=' %(asctime)s - %(levelname)s - %(message)s')
 
 
 def isFloat(num):
@@ -28,11 +32,14 @@ def imdb_data(movie, year):
     '''Retrieve IMDB movie data using OMDB API, only returns movies with rating
     higher or equal to 7.0
     '''
+    logging.debug('Movie - ' + movie)
+    logging.debug('Year - ' + year)
     url = 'http://www.omdbapi.com/?t='
     end_url = '&y=' + year + '&plot=short&r=json'
     url_search = url + movie.replace(" ", "+") + end_url
-    resp = requests.get(url=url_search)
-    data = json.loads(resp.text)
+    logging.debug('URL - ' + url_search)
+    data = requests.get(url_search).json()
+    # data = json.loads(resp.text)
     if data['Response'] == 'True':
         rating = data['imdbRating']
         if isFloat(rating):
