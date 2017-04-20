@@ -8,15 +8,17 @@
 
 import bs4 as bs
 # import json
+import logging
+import os
 import requests
 import urllib.request
-import logging
 
 import gmail_helper
 
-emails_file = 'emails.txt'
+basedir = os.path.dirname(os.path.realpath(__file__))
+emails_file = os.path.join(basedir, 'emails.txt')
 
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=logging.ERROR,
                     format=' %(asctime)s - %(levelname)s - %(message)s')
 
 
