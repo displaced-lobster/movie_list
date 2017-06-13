@@ -27,14 +27,6 @@ logging.basicConfig(level=logging.ERROR,
                     format=' %(asctime)s - %(levelname)s - %(message)s')
 
 
-def isFloat(num):
-    try:
-        float(num)
-        return True
-    except:
-        return False
-
-
 def get_movie_data(movie, year):
     '''Retrieve TheMovieDB movie data, only returns movies with a rating
     higher or equal to 7.0
