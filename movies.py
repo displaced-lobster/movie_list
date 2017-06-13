@@ -2,8 +2,11 @@
 # -------------------------------------------------------------------------------
 # movies.py
 # by Richard Mills
-# Scrapes website for movies playing in Edmonton, fetches IMDB rating
+# Scrapes website for movies playing in Edmonton, fetches ratings
 # and compiles list of high rated movies. Emails list
+# !!!
+# This product uses the TMDb API but is not endorsed or certified by TMDb.
+# !!!
 # -------------------------------------------------------------------------------
 
 import bs4 as bs
@@ -14,6 +17,8 @@ import requests
 import urllib.request
 
 import gmail_helper
+
+from secrets import API_KEY
 
 basedir = os.path.dirname(os.path.realpath(__file__))
 emails_file = os.path.join(basedir, 'emails.txt')
@@ -30,25 +35,29 @@ def isFloat(num):
         return False
 
 
-def imdb_data(movie, year):
-    '''Retrieve IMDB movie data using OMDB API, only returns movies with rating
+def get_movie_data(movie, year):
+    '''Retrieve TheMovieDB movie data, only returns movies with a rating
     higher or equal to 7.0
     '''
     logging.debug('Movie - ' + movie)
     logging.debug('Year - ' + year)
-    url = 'http://www.omdbapi.com/?t='
-    end_url = '&y=' + year + '&plot=short&r=json'
-    url_search = url + movie.replace(" ", "+") + end_url
-    logging.debug('URL - ' + url_search)
-    data = requests.get(url_search).json()
-    # data = json.loads(resp.text)
-    if data['Response'] == 'True':
-        rating = data['imdbRating']
-        if isFloat(rating):
-            if float(rating) >= 7.0:
-                link = "www.imdb.com/title/" + data['imdbID']
+    url = 'https://api.themoviedb.org/3/search/movie?api_key=' + API_KEY
+    url += '&language=en-US&query=' + movie.replace(' ', '%20')
+    url += '&page=1&include_adult=false&primary_release_year=' + year
+    logging.debug('URL - ' + url)
+    r = requests.get(url)
+    if r.status_code != 200:
+        print(r.status_code)
+        return False
+    data = r.json()
+    if data['total_results'] == 1:
+        for result in data['results']:
+            rating = result['vote_average']
+            if rating >= 7.0:
+                link = 'https://www.themoviedb.org/movie/'
+                link += str(result['id'])
                 # Movie Title, Rating, IMDB Link, and Plot
-                return [movie, rating, link, data['Plot']]
+                return [movie, str(rating), link, result['overview']]
     return False
 
 
@@ -77,7 +86,7 @@ def get_good_movies(movies):
     good_movies = []
 
     for movie in movies:
-        movie_data = imdb_data(movie[0], movie[1])
+        movie_data = get_movie_data(movie[0], movie[1])
         if movie_data:
             good_movies.append(movie_data)
     return good_movies
