@@ -57,7 +57,7 @@ def get_movies():
     # Scrape website for movies playing in Edmonton using BeautifulSoup
     address = 'http://www.edmovieguide.com/movies/?sort=release-date'
     source = urllib.request.urlopen(address)
-    soup = bs.BeautifulSoup(source, 'lxml')
+    soup = bs.BeautifulSoup(source, 'html.parser')
     movie_list = []
 
     for li in soup.find_all('li', class_='movie'):
