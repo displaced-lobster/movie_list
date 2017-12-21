@@ -65,11 +65,11 @@ def get_movies():
             movie_name = li.find('a', class_='movie-title').text
             try:
                 movie_date = li.find('p', class_='movie-date').text[-4:]
-            except:
+            except AttributeError:
                 movie_date = ''
             movie_list.append([movie_name, movie_date])
-        except:
-            pass
+        except AttributeError:
+            print('WARNING: No movie list found...')
     return movie_list
 
 
